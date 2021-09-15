@@ -18,7 +18,7 @@ const getDate = () => {
  * update UI
  */
 const updateUI = (data) => {
-  if (!data.date || !data.temperature || !data.userResponse) {
+  if (!data || !data.date || !data.temperature || !data.userResponse) {
     return;
   }
 
