@@ -38,5 +38,4 @@ app.post('/weather', (req, res) => {
   projectData.date = req.body.date;
   projectData.userResponse = req.body.userResponse;
   res.end();
-  console.log(projectData)
 });
