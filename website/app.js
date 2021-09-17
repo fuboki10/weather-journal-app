@@ -1,6 +1,6 @@
 /* Global Variables */
 const openWeatherApiKey = '8459af060455c7b36006073e9bb5d83a';
-const openWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?appid=${openWeatherApiKey}`;
+const openWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?appid=${openWeatherApiKey}&units=metric`;
 const backendUrl = 'http://127.0.0.1:3000';
 
 // Create a new date instance dynamically with JS
@@ -11,7 +11,7 @@ const backendUrl = 'http://127.0.0.1:3000';
  */
 const getDate = () => {
   const d = new Date();
-  return d.getMonth() + '.' + d.getDate() + '.' + d.getFullYear();
+  return (d.getMonth() + 1) + '.' + d.getDate() + '.' + d.getFullYear();
 }
 
 /**
@@ -23,7 +23,7 @@ const updateUI = (data) => {
   }
 
   document.getElementById('date').innerText = data.date;
-  document.getElementById('temp').innerText = data.temperature;
+  document.getElementById('temp').innerText = `${data.temperature} c`;
   document.getElementById('content').innerText = data.userResponse;
 }
 
@@ -33,7 +33,13 @@ const updateUI = (data) => {
  * @returns zip code string
  */
 const getZipCode = () => {
-  return document.getElementById('zip').value;
+  const zipCode = document.getElementById('zip').value;
+
+  if (!zipCode) {
+    throw Error('Please Enter valid Zip Code Value');
+  }
+
+  return zipCode;
 }
 
 /**
@@ -44,17 +50,9 @@ const getZipCode = () => {
 const getWeatherData = async () => {
   const zipCode = getZipCode();
   const url = `${openWeatherUrl}&zip=${zipCode}`;
-  try {
-    // fetch data from the server
-    const req = await fetch(url);
-    // convert data to json
-    const data = await req.json();
-
-    return data;
-
-  } catch (error) {
-    console.error('error', error);
-  }
+  // fetch data from the server
+  const data = (await axios.get(url)).data;
+  return data;
 }
 
 /**
@@ -62,25 +60,29 @@ const getWeatherData = async () => {
  * @returns userResponse
  */
 const getUserResponse = () => {
-  return document.getElementById('feelings').value;
+  const userResponse = document.getElementById('feelings').value;
+
+  if (!userResponse) {
+    throw Error('Please Enter valid feeling');
+  }
+
+  return userResponse;
 }
 
 const postData = async (data) => {
   const url = `${backendUrl}/weather`;
   try {
-    await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
+    await axios.post(url, data);
   } catch (error) {
     console.error('error', error);
   }
 }
 
 const sendDataToServer = (weather) => {
+  if (!weather || !weather.main || !weather.main.temp) {
+    throw Error('No Valid Weather for this Zip Code');
+  }
+
   const data = {
     'temperature': weather.main.temp,
     'date': getDate(),
@@ -94,27 +96,28 @@ const sendDataToServer = (weather) => {
 
 const getDataFromServer = async () => {
   const url = `${backendUrl}/weather`;
-  try {
-    const req = await fetch(url);
+  const data = (await axios.get(url)).data;
 
-    const data = await req.json();
-    return data;
-  } catch (error) {
-    console.error('error', error);
-  }
+  return data;
+}
+
+const handleError = (error) => {
+  alert(error.message);
 }
 
 
 window.addEventListener('DOMContentLoaded', (e) => {
   // update UI
   getDataFromServer()
-    .then(updateUI);
+    .then(updateUI)
+    .catch(handleError);
 
   const formButton = document.getElementById('generate');
 
   formButton.addEventListener('click', (e) => {
     getWeatherData()
       .then(sendDataToServer)
-      .then(updateUI);
+      .then(updateUI)
+      .catch(handleError);
   });
 });
