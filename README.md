@@ -52,8 +52,12 @@ git clone https://github.com/fuboki10/weather-journal-app
 ```sh
 npm install
 ```
+3. start the server
+```sh
+npm start
+```
 
-3. Open `website/index.html` in your favourite browser
+4. Open `website/index.html` in your favourite browser
 
 # Development
 
