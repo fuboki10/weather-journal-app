@@ -22,9 +22,9 @@ const updateUI = (data) => {
     return;
   }
 
-  document.getElementById('date').innerText = data.date;
-  document.getElementById('temp').innerText = `${data.temperature} c`;
-  document.getElementById('content').innerText = data.userResponse;
+  document.getElementById('date').innerHTML = data.date;
+  document.getElementById('temp').innerHTML = `${data.temperature} c`;
+  document.getElementById('content').innerHTML = data.userResponse;
 }
 
 /**
